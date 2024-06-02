@@ -44,8 +44,13 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.room)
+    //noinspection KaptUsageInsteadOfKsp
+    kapt(libs.androidx.room.compiler)
+
     implementation(libs.google.dagger.hilt)
     kapt(libs.google.dagger.hilt.compiler)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
