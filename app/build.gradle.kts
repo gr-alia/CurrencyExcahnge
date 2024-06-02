@@ -44,7 +44,9 @@ dependencies {
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.room)
+    implementation(libs.androidx.room.ktx)
     //noinspection KaptUsageInsteadOfKsp
     kapt(libs.androidx.room.compiler)
 

@@ -42,7 +42,8 @@
                 android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
                 android:textColor="?attr/colorPrimary" />
 
-            <View
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/balances_pager"
                 android:layout_width="match_parent"
                 android:layout_height="150dp" />
 
