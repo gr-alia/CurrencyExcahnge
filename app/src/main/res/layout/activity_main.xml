@@ -5,6 +5,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".MainActivity">
 
     <com.google.android.material.appbar.AppBarLayout
@@ -32,13 +33,125 @@
             android:orientation="vertical">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:id="@+id/balances_title"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Hello World!"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="16dp"
+                android:text="@string/main_total_balances_title"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="?attr/colorPrimary" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="150dp" />
+
+            <TextView
+                android:id="@+id/currency_exchange_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="32dp"
+                android:paddingVertical="16dp"
+                android:text="@string/main_currency_exchange_title"
+                android:textAppearance="@style/TextAppearance.Material3.TitleMedium"
+                android:textColor="?attr/colorPrimary"
+                app:drawableTint="?attr/colorError" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="4dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/main_currency_exchange_sell_title"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    app:drawableStartCompat="@drawable/ic_arrow_circle_up"
+                    app:drawableTint="?attr/colorPrimary" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/sell_input_layout"
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="0">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/sell_input_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/sell_currency_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:padding="4dp"
+                    android:text="EUR"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    app:drawableEndCompat="@drawable/ic_expand_more" />
+
+            </LinearLayout>
+
+            <com.google.android.material.divider.MaterialDivider
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:dividerInsetEnd="16dp"
+                app:dividerInsetStart="16dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:drawablePadding="4dp"
+                    android:gravity="center_vertical"
+                    android:text="@string/main_currency_exchange_receive_title"
+                    android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
+                    app:drawableStartCompat="@drawable/ic_arrow_circle_down"
+                    app:drawableTint="?attr/colorPrimary" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/receive_input_layout"
+                    style="@style/Widget.Material3.TextInputLayout.FilledBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="0">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/receive_input_edit"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <TextView
+                    android:id="@+id/receive_currency_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:padding="4dp"
+                    android:text="USD"
+                    android:textAppearance="@style/TextAppearance.Material3.LabelLarge"
+                    app:drawableEndCompat="@drawable/ic_expand_more" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
