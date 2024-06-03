@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.currencyexchange.data.api.CurrencyExchangeApi
 import com.example.currencyexchange.data.db.dao.RatesDao
 import com.example.currencyexchange.data.db.models.RateEntity
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class CurrencyExchangeRepositoryImpl @Inject constructor(
@@ -14,5 +15,9 @@ class CurrencyExchangeRepositoryImpl @Inject constructor(
         val response = api.getRates()
         Log.d("CurrencyExchangeRepositoryImpl", response.toString())
         ratesDao.insertRates(response.rates.map { RateEntity(it.key, it.value) })
+    }
+
+    override fun getRatesForMyCurrencies(): Flow<List<RateEntity>> {
+        return ratesDao.getRatesForMyCurrencies()
     }
 }

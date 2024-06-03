@@ -37,19 +37,22 @@ class MainViewModel @Inject constructor(
             .map { account -> account.balances.map { it.toUIModel() } }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    val currencies = currencyExchangeRepository.getRatesForMyCurrencies()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     private val _sellAmount = MutableStateFlow(BigDecimal(0))
     val sellAmount = _sellAmount.asStateFlow()
 
     private val _receiveAmount = MutableStateFlow(BigDecimal(0))
     val receiveAmount = _receiveAmount.asStateFlow()
 
-    fun updateSellAmount(newAmount: BigDecimal){
+    fun updateSellAmount(newAmount: BigDecimal) {
         if (newAmount != _sellAmount.value) {
             _sellAmount.value = newAmount
         }
     }
 
-    fun updateReceiveAmount(newAmount: BigDecimal){
+    fun updateReceiveAmount(newAmount: BigDecimal) {
         if (newAmount != _receiveAmount.value) {
             _receiveAmount.value = newAmount
         }

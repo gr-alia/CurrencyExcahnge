@@ -35,7 +35,7 @@ private val diffCallback = object : DiffUtil.ItemCallback<BalanceUIModel>() {
         oldItem: BalanceUIModel,
         newItem: BalanceUIModel
     ): Boolean {
-        return oldItem.id == newItem.id
+        return oldItem.currencyCode == newItem.currencyCode
     }
 
     override fun areContentsTheSame(

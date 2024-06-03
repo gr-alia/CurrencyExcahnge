@@ -49,6 +49,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.currencies.collectLatest {
+                    Log.d("MainActivity currencies", it.toString())
+                }
+            }
+        }
+
         val sellInput = findViewById<EditText>(R.id.sell_input_edit)
         val receiveInput = findViewById<EditText>(R.id.receive_input_edit)
 

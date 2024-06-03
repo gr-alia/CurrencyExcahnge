@@ -7,12 +7,12 @@ import java.util.Currency
 import java.util.Locale
 
 data class BalanceUIModel(
-    val id: String,
+    val currencyCode: String,
     val amount: BigDecimal,
     val currency: Currency
 )
 
-fun BalanceEntity.toUIModel(): BalanceUIModel = BalanceUIModel(id, amount, Currency.getInstance(id))
+fun BalanceEntity.toUIModel(): BalanceUIModel = BalanceUIModel(currency, amount, Currency.getInstance(currency))
 
 fun BalanceUIModel.format(locale: Locale = Locale.getDefault()): String {
     val numberFormat = NumberFormat.getCurrencyInstance(locale)

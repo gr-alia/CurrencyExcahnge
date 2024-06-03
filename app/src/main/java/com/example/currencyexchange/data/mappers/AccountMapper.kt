@@ -11,7 +11,7 @@ fun AccountDTO.toEntity(): AccountEntity = AccountEntity(
 )
 
 fun BalanceDTO.toEntity(accountId: Long): BalanceEntity = BalanceEntity(
-    id = currency.currencyCode,
+    currency = currency.currencyCode,
     accountId = accountId,
     amount = amount
 )

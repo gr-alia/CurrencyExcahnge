@@ -18,6 +18,4 @@ class AccountRepositoryImpl @Inject constructor(
     override fun getAccountWithBalances(): Flow<AccountWithBalances?> {
         return accountDao.getAccountWithBalances()
     }
-
-
 }

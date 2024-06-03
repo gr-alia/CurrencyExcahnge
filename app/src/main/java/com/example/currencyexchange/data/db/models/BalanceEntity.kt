@@ -7,7 +7,7 @@ import java.math.BigDecimal
 @Entity
 data class BalanceEntity(
     @PrimaryKey
-    val id: String,
+    val currency: String,
     val accountId: Long,
     val amount: BigDecimal,
 )
