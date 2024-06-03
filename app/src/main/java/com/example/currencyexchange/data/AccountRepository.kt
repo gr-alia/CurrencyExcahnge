@@ -7,5 +7,5 @@ interface AccountRepository {
 
     suspend fun fetchAccount()
 
-    fun getAccountWithBalances(): Flow<AccountWithBalances>
+    fun getAccountWithBalances(): Flow<AccountWithBalances?>
 }

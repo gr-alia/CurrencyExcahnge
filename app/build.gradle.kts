@@ -52,6 +52,8 @@ dependencies {
 
     implementation(libs.google.dagger.hilt)
     kapt(libs.google.dagger.hilt.compiler)
+    implementation(libs.squareup.retrofit2)
+    implementation(libs.squareup.retrofit2.gson)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

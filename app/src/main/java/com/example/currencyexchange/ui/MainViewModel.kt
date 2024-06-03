@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -26,11 +27,13 @@ class MainViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             accountRepository.fetchAccount()
+            currencyExchangeRepository.fetchRates()
         }
     }
 
     val balances: StateFlow<List<BalanceUIModel>> =
         accountRepository.getAccountWithBalances()
+            .filterNotNull()
             .map { account -> account.balances.map { it.toUIModel() } }
             .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 

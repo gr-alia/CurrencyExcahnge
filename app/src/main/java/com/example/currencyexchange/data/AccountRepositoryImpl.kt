@@ -15,7 +15,7 @@ class AccountRepositoryImpl @Inject constructor(
         accountDao.insertAccountWithBalances(accountDTO)
     }
 
-    override fun getAccountWithBalances(): Flow<AccountWithBalances> {
+    override fun getAccountWithBalances(): Flow<AccountWithBalances?> {
         return accountDao.getAccountWithBalances()
     }
 

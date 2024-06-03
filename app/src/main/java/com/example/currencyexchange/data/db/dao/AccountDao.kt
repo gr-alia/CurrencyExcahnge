@@ -31,5 +31,5 @@ interface AccountDao {
 
     @Transaction
     @Query("select * from AccountEntity")
-    fun getAccountWithBalances(): Flow<AccountWithBalances>
+    fun getAccountWithBalances(): Flow<AccountWithBalances?>
 }
