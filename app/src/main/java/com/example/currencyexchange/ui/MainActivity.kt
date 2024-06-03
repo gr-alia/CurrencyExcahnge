@@ -1,6 +1,8 @@
 package com.example.currencyexchange.ui
 
 import android.os.Bundle
+import android.util.Log
+import android.widget.EditText
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,7 +15,11 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.currencyexchange.R
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.math.BigDecimal
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,5 +49,40 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        val sellInput = findViewById<EditText>(R.id.sell_input_edit)
+        val receiveInput = findViewById<EditText>(R.id.receive_input_edit)
+
+        sellInput.textFlow()
+            .map { it.toBigDecimal() }
+            .onEach { viewModel.updateSellAmount(it) }
+            .launchIn(lifecycleScope)
+
+        receiveInput.textFlow()
+            .map { it.toBigDecimal() }
+            .onEach { viewModel.updateReceiveAmount(it) }
+            .launchIn(lifecycleScope)
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.sellAmount.collectLatest {
+                    Log.d("MainActivity sellAmount", it.toString())
+                }
+            }
+        }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.receiveAmount.collectLatest {
+                    Log.d("MainActivity receiveAmount", it.toString())
+                }
+            }
+        }
+
     }
+}
+
+private fun CharSequence.toBigDecimal(): BigDecimal = if (isEmpty()) {
+    BigDecimal(0)
+} else {
+    BigDecimal(toString())
 }
