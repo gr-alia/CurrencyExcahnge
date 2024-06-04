@@ -4,9 +4,9 @@ import java.math.BigDecimal
 import java.math.RoundingMode
 import javax.inject.Inject
 
-class ConvertCurrencyUseCase @Inject constructor() {
+class CalculateCurrencyConversionUseCase @Inject constructor() {
 
-    fun convertCurrency(
+    fun calculateConversion(
         fromAmount: BigDecimal,
         fromCurrencyRate: BigDecimal,
         toCurrencyRate: BigDecimal

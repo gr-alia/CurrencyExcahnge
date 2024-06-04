@@ -11,6 +11,7 @@ import com.example.currencyexchange.data.db.models.AccountWithBalances
 import com.example.currencyexchange.data.db.models.BalanceEntity
 import com.example.currencyexchange.data.mappers.toEntity
 import kotlinx.coroutines.flow.Flow
+import java.math.BigDecimal
 
 @Dao
 interface AccountDao {
@@ -32,4 +33,24 @@ interface AccountDao {
     @Transaction
     @Query("select * from AccountEntity")
     fun getAccountWithBalances(): Flow<AccountWithBalances?>
+
+    @Query("select * from BalanceEntity")
+    fun getBalances(): Flow<List<BalanceEntity>>
+
+    @Query("select * from BalanceEntity where currency = :currency")
+    suspend fun getBalanceByCurrency(currency: String): BalanceEntity
+
+    @Transaction
+    suspend fun updateTransactionalBalances(
+        fromBalance: BigDecimal,
+        fromCurrency: String,
+        toBalance: BigDecimal,
+        toCurrency: String
+    ) {
+        updateBalance(fromBalance, fromCurrency)
+        updateBalance(toBalance, toCurrency)
+    }
+
+    @Query("update BalanceEntity set amount = :newAmount where currency = :currency")
+    suspend fun updateBalance(newAmount: BigDecimal, currency: String)
 }

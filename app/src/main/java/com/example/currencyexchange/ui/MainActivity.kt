@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import java.math.BigDecimal
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -107,6 +106,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun exchangeCurrency() {
+        viewModel.submitExchange()
         buildSuccessDialog(this).show()
     }
 
@@ -153,10 +153,29 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun buildSuccessDialog(context: Context) =
-        MaterialAlertDialogBuilder(context).setMessage(R.string.currency_exchange_success_description)
+    private fun buildSuccessDialog(context: Context): MaterialAlertDialogBuilder {
+        val sellInput = findViewById<EditText>(R.id.sell_input_edit)
+        val receiveInput = findViewById<EditText>(R.id.receive_input_edit)
+        val sellSpinner = findViewById<Spinner>(R.id.sell_currencies_spinner)
+        val receiveSpinner = findViewById<Spinner>(R.id.receive_currencies_spinner)
+
+        val sellText = "${sellInput.text.toBigDecimal().formatAmount()} ${sellSpinner.selectedItem}"
+        val receiveText =
+            "${receiveInput.text.toBigDecimal().formatAmount()} ${receiveSpinner.selectedItem}"
+        val feeText = "0"
+
+        val description = resources.getString(
+            R.string.currency_exchange_success_description,
+            sellText,
+            receiveText,
+            feeText
+        )
+
+        return MaterialAlertDialogBuilder(context)
+            .setMessage(description)
             .setTitle(R.string.currency_exchange_success_title)
             .setPositiveButton(R.string.currency_exchange_success_button) { dialog, _ ->
                 dialog.dismiss()
             }.also { it.create() }
+    }
 }

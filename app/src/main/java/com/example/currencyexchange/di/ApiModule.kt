@@ -9,16 +9,19 @@ import dagger.hilt.components.SingletonComponent
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.create
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
 
     @Provides
+    @Singleton
     fun provideRetrofit(): Retrofit = Retrofit.Builder().baseUrl("https://developers.paysera.com/")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 
     @Provides
+    @Singleton
     fun provideCurrencyExchangeApi(retrofit: Retrofit): CurrencyExchangeApi = retrofit.create()
 }

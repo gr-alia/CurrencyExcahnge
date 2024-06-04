@@ -4,14 +4,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.currencyexchange.data.AccountRepository
 import com.example.currencyexchange.data.CurrencyExchangeRepository
-import com.example.currencyexchange.domain.ConvertCurrencyUseCase
+import com.example.currencyexchange.domain.CalculateCurrencyConversionUseCase
 import com.example.currencyexchange.ui.models.BalanceUIModel
 import com.example.currencyexchange.ui.models.toUIModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -22,8 +22,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     accountRepository: AccountRepository,
-    currencyExchangeRepository: CurrencyExchangeRepository,
-    private val convertCurrencyUseCase: ConvertCurrencyUseCase
+    private val currencyExchangeRepository: CurrencyExchangeRepository,
+    private val conversionUseCase: CalculateCurrencyConversionUseCase
 ) : ViewModel() {
 
     init {
@@ -33,11 +33,10 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    val balances: StateFlow<List<BalanceUIModel>> =
-        accountRepository.getAccountWithBalances()
-            .filterNotNull()
-            .map { account -> account.balances.map { it.toUIModel() } }
-            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    val balances: Flow<List<BalanceUIModel>> =
+        accountRepository.getBalances()
+            .map { list -> list.map { it.toUIModel() } }
+           // .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val rates = currencyExchangeRepository.getRatesForMyCurrencies()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -66,6 +65,22 @@ class MainViewModel @Inject constructor(
         return convertCurrency(fromAmount, fromCurrency, toCurrency)
     }
 
+    fun submitExchange() {
+        val fromAmount = sellAmount.value ?: return
+        val fromCurrency = sellCurrency.value ?: return
+        val toAmount = receiveAmount.value ?: return
+        val toCurrency = receiveCurrency.value ?: return
+
+        viewModelScope.launch {
+            currencyExchangeRepository.exchangeCurrency(
+                fromAmount,
+                fromCurrency,
+                toAmount,
+                toCurrency
+            )
+        }
+    }
+
     private suspend fun convertCurrency(
         fromAmount: BigDecimal,
         fromCurrency: String,
@@ -74,7 +89,7 @@ class MainViewModel @Inject constructor(
         val fromCurrencyRate = getRateByCurrency(fromCurrency)
         val toCurrencyRate = getRateByCurrency(toCurrency)
 
-        val result = convertCurrencyUseCase.convertCurrency(
+        val result = conversionUseCase.calculateConversion(
             fromAmount,
             fromCurrencyRate,
             toCurrencyRate
