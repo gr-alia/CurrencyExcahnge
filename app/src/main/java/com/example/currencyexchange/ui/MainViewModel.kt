@@ -11,7 +11,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -36,7 +36,7 @@ class MainViewModel @Inject constructor(
     val balances: Flow<List<BalanceUIModel>> =
         accountRepository.getBalances()
             .map { list -> list.map { it.toUIModel() } }
-           // .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+            .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     val rates = currencyExchangeRepository.getRatesForMyCurrencies()
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
@@ -48,6 +48,24 @@ class MainViewModel @Inject constructor(
     val sellCurrency: MutableStateFlow<String?> = MutableStateFlow(null)
 
     val receiveCurrency: MutableStateFlow<String?> = MutableStateFlow(null)
+
+    private val enoughBalance = combine(
+        balances,
+        sellAmount,
+        sellCurrency
+    ) { balances, sellAmount, sellCurrency ->
+        val balance = balances.firstOrNull { it.currency.currencyCode == sellCurrency }
+        balance ?: return@combine false
+        balance.amount >= sellAmount
+    }
+
+    val isButtonEnabled = combine(
+        sellCurrency,
+        receiveCurrency,
+        enoughBalance
+    ) { sellCurrency, receiveCurrency, enoughBalance ->
+        sellCurrency != receiveCurrency && enoughBalance
+    }
 
     suspend fun onSellChanged(): BigDecimal? {
         val fromAmount = sellAmount.value ?: return null

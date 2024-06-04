@@ -103,6 +103,14 @@ class MainActivity : AppCompatActivity() {
 
         val submitButton = findViewById<Button>(R.id.submit_button)
         submitButton.setOnClickListener { exchangeCurrency() }
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isButtonEnabled.collectLatest {
+                    submitButton.isEnabled = it
+                }
+            }
+        }
     }
 
     private fun exchangeCurrency() {
