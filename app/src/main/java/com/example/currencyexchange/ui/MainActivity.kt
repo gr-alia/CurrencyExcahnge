@@ -1,8 +1,12 @@
 package com.example.currencyexchange.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.EditText
+import android.widget.Spinner
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.viewpager2.widget.ViewPager2
 import com.example.currencyexchange.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
@@ -30,6 +35,8 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var balancesAdapter: BalancesAdapter
 
+    private val currenciesList = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -40,6 +47,70 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        setupBalances()
+        setupCurrencyDropdowns()
+
+        val sellInput = findViewById<EditText>(R.id.sell_input_edit)
+        val receiveInput = findViewById<EditText>(R.id.receive_input_edit)
+
+        sellInput.textFlow()
+            .map { it.toBigDecimal() }
+            .onEach { viewModel.sellAmount.value = it }
+            .onEach {
+                if (sellInput.hasFocus()) {
+                    val amountToReceive = viewModel.onSellChanged()
+                    amountToReceive?.let {
+                        receiveInput.setText(it.formatAmount())
+                    }
+                }
+            }
+            .launchIn(lifecycleScope)
+
+        receiveInput.textFlow()
+            .map { it.toBigDecimal() }
+            .onEach { viewModel.receiveAmount.value = it }
+            .onEach {
+                if (receiveInput.hasFocus()) {
+                    val amountToSell = viewModel.onReceiveChanged()
+                    amountToSell?.let {
+                        sellInput.setText(it.toPlainString())
+                    }
+                }
+            }
+            .launchIn(lifecycleScope)
+
+        val sellSpinner = findViewById<Spinner>(R.id.sell_currencies_spinner)
+        val receiveSpinner = findViewById<Spinner>(R.id.receive_currencies_spinner)
+
+        sellSpinner.spinnerFlow()
+            .onEach { viewModel.sellCurrency.value = it }
+            .onEach {
+                val amountToReceive = viewModel.onSellChanged()
+                amountToReceive?.let {
+                    receiveInput.setText(it.formatAmount())
+                }
+            }
+            .launchIn(lifecycleScope)
+
+        receiveSpinner.spinnerFlow()
+            .onEach { viewModel.receiveCurrency.value = it }
+            .onEach {
+                val amountToSell = viewModel.onReceiveChanged()
+                amountToSell?.let {
+                    sellInput.setText(it.toPlainString())
+                }
+            }
+            .launchIn(lifecycleScope)
+
+        val submitButton = findViewById<Button>(R.id.submit_button)
+        submitButton.setOnClickListener { exchangeCurrency() }
+    }
+
+    private fun exchangeCurrency() {
+        buildSuccessDialog(this).show()
+    }
+
+    private fun setupBalances() {
         val viewPager = findViewById<ViewPager2>(R.id.balances_pager)
         viewPager.adapter = balancesAdapter
 
@@ -48,50 +119,44 @@ class MainActivity : AppCompatActivity() {
                 viewModel.balances.collectLatest { balancesAdapter.submitList(it) }
             }
         }
-
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewModel.currencies.collectLatest {
-                    Log.d("MainActivity currencies", it.toString())
-                }
-            }
-        }
-
-        val sellInput = findViewById<EditText>(R.id.sell_input_edit)
-        val receiveInput = findViewById<EditText>(R.id.receive_input_edit)
-
-        sellInput.textFlow()
-            .map { it.toBigDecimal() }
-            .onEach { viewModel.updateSellAmount(it) }
-            .launchIn(lifecycleScope)
-
-        receiveInput.textFlow()
-            .map { it.toBigDecimal() }
-            .onEach { viewModel.updateReceiveAmount(it) }
-            .launchIn(lifecycleScope)
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.sellAmount.collectLatest {
-                    Log.d("MainActivity sellAmount", it.toString())
-                }
-            }
-        }
-
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.receiveAmount.collectLatest {
-                    Log.d("MainActivity receiveAmount", it.toString())
-                }
-            }
-        }
-
     }
-}
 
-private fun CharSequence.toBigDecimal(): BigDecimal = if (isEmpty()) {
-    BigDecimal(0)
-} else {
-    BigDecimal(toString())
+    private fun setupCurrencyDropdowns() {
+        val sellAdapter =
+            ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, currenciesList)
+        val receiveAdapter =
+            ArrayAdapter(this@MainActivity, android.R.layout.simple_spinner_item, currenciesList)
+
+
+        sellAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        receiveAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+
+        val sellSpinner = findViewById<Spinner>(R.id.sell_currencies_spinner)
+        val receiveSpinner = findViewById<Spinner>(R.id.receive_currencies_spinner)
+        sellSpinner.adapter = sellAdapter
+        receiveSpinner.adapter = receiveAdapter
+
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.rates.collectLatest { rates ->
+                    Log.d("MainActivity currencies", rates.toString())
+
+                    rates.map { it.currency }.also {
+                        currenciesList.clear()
+                        currenciesList.addAll(it)
+                    }
+
+                    sellAdapter.notifyDataSetChanged()
+                    receiveAdapter.notifyDataSetChanged()
+                }
+            }
+        }
+    }
+
+    private fun buildSuccessDialog(context: Context) =
+        MaterialAlertDialogBuilder(context).setMessage(R.string.currency_exchange_success_description)
+            .setTitle(R.string.currency_exchange_success_title)
+            .setPositiveButton(R.string.currency_exchange_success_button) { dialog, _ ->
+                dialog.dismiss()
+            }.also { it.create() }
 }
